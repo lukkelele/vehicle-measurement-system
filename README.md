@@ -1,7 +1,7 @@
 # Vehicle measurement system
-<pre> an embedded system that can detect and measure vehicles</pre>
----
+an embedded system that can detect and measure vehicles
 
+---
 Author: *Lukas Gunnarsson*<br>
 Project start: *31/1-2023*<br>
 
