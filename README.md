@@ -3,7 +3,7 @@ an embedded system that can detect and measure vehicles
 
 ---
 Author: *Lukas Gunnarsson*<br>
-Project start: *31/1-2023*<br>
+Project start: *24/1-2023*<br>
 
 ---
 ## System
