@@ -1,3 +1,9 @@
 [submodule "pico-freertos-sample"]
 	path = pico-freertos-sample
 	url = https://github.com/yunkya2/pico-freertos-sample
+[submodule "FreeRTOS-Kernel"]
+	path = FreeRTOS-Kernel
+	url = https://github.com/FreeRTOS/FreeRTOS-Kernel
+[submodule "pico-sdk"]
+	path = pico-sdk
+	url = https://github.com/RaspberryPi/pico-sdk
