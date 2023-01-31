@@ -27,6 +27,7 @@ OS: *freeRTOS*
 > - Light dependent resistor module
 > - Line tracking module
 > - Small laser module (*testing*)
+> - Wireless module (?)
 > - **[ INSERT MORE ]**
 
 ---
