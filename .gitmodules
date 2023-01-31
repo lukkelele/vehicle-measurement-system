@@ -1,0 +1,3 @@
+[submodule "pico-freertos-sample"]
+	path = pico-freertos-sample
+	url = https://github.com/yunkya2/pico-freertos-sample
