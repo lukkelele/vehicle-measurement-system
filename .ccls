@@ -5,8 +5,8 @@ clang
 %cpp -std=c++17
 %c -std=c11
 
--Iinclude
 -Isrc
+-Iinclude
 -Ilib
 
 -I/home/lukas/Code/embedded/pico-sdk/headers/pico/
