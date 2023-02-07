@@ -9,9 +9,11 @@ Project start: *24/1-2023*<br>
 ## System
 OS: *freeRTOS*
 ### Prerequities
+- gcc
 - git
 - freeRTOS
 - CMake
+
 
 #### Components
 - Raspberry Pi Pico
@@ -20,15 +22,13 @@ OS: *freeRTOS*
 - LEDs
 - Sensors 
 > - PIR sensor
+> - Ultrasonic sensor
 > - Magnetic sensor (*for inductive wiring*)
 > - Light seeking sensor
-> - **[ INSERT MORE ]**
-- Modules
-> - Light dependent resistor module
+> - Light dependent resistor
 > - Line tracking module
 > - Small laser module (*testing*)
-> - Wireless module (?)
-> - **[ INSERT MORE ]**
+> - **...**
 
 ---
 ## Configuration
