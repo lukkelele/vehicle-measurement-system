@@ -3,6 +3,7 @@ workspace "VehicleMeasurementSystem"
   architecture "arm"
   system "raspberrypi"
 
+
 project "VehicleMeasurementSystem"
   kind "ConsoleApp"
   language "C++"
@@ -12,6 +13,11 @@ project "VehicleMeasurementSystem"
   files {
     "src/**.h",
     "src/**.cpp"
+  }
+
+  libdirs {
+    "lib"
+    "lib/pico-sdk/lib/",
   }
 
   filter "configurations:Debug"
