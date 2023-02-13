@@ -62,8 +62,3 @@
 #define ADC1 GP27
 
 #endif /* _VMSPICO_H */
-
-/*
-// minicom -b 115200 -o -D /dev/serial0
-*/
-

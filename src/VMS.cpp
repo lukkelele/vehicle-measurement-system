@@ -4,14 +4,7 @@
 VMSystem::VMSystem()
 {
     stdio_init_all();
-    uart_init(UART_ID, BAUD_RATE);
-    uart_set_translate_crlf(UART_ID, false);
-
-
-    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-    // gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
-
-    bi_decl(bi_1pin_with_func(UART_TX_PIN, GPIO_FUNC_UART));
+    initUART();
 }
 
 bool VMSystem::transmitByte(uint8_t &byte)
@@ -37,19 +30,41 @@ void VMSystem::initUART()
     uart_set_format(UART_ID, PAYLOAD_FORMAT, STOP_BITS, PARITY);
     uart_set_fifo_enabled(UART_ID, false);
     // if interrupts are enabled
-    if (m_Interrupt_UART == true)
-    {
+    #ifdef UART_IRQ_ENABLED
         int UART_IRQ = UART_ID == uart0 ? UART0_IRQ : UART1_IRQ;
         irq_set_exclusive_handler(UART_IRQ, UART_RX_HANDLER);
-    }
+        irq_set_enabled(UART_IRQ, true);
+        // Enable UART to send interrupts
+        uart_set_irq_enables(UART_ID, true, false);
+    #endif
+}
+
+void VMSystem::initPin(uint pin, uint direction, uint value)
+{
+    gpio_init(pin);
+    gpio_set_dir(pin, direction);
+    gpio_put(pin, value);
 }
 
 
 
 int main()
 {
-    stdio_init_all();
-    uart_init(UART_ID, BAUD_RATE);
+    #ifdef PICO_DEFAULT_LED_PIN
+    const uint PICO_LED = PICO_DEFAULT_LED_PIN;
+    gpio_init(PICO_LED);
+    gpio_set_dir(PICO_LED, OUT);
+    VMSystem Vms;
+    Vms.initUART();
 
+    while (1)
+    {
+        sleep_ms(1200);
+        Vms.setPinValue(PICO_LED, LOW);
+        printf("HEARTBEAT");
+        sleep_ms(1200);
+        Vms.setPinValue(PICO_LED, HIGH);
+    }
     return 0;
+    #endif
 }

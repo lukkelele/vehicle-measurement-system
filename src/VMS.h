@@ -15,8 +15,8 @@
 
 #define UART_ID uart1
 #define BAUD_RATE 9600
-#define UART_TX_PIN 8
-
+// #define UART_TX_PIN 8
+// #define UART_IRQ_ENABLED 1
 
 class VMSystem
 {
@@ -25,21 +25,24 @@ public:
     ~VMSystem() = default;
 
 public:
-    void initPin(uint pin, uint mode = OUT, uint val = LOW);
+    void initPin(uint pin, uint direction = OUT, uint val = LOW);
     void initUART();
 
-    void setPinDir(uint pin, uint mode);
+    void setPinDir(uint pin, uint direction) { gpio_set_dir(pin, direction); }
     void setPinPull(uint pin, bool up);
 
-    uint8_t getPinValue(uint pin) const;
-    uint8_t setPinValue(uint pin, uint val);
+    void setPinValue(uint pin, uint val) { gpio_put(pin, val); }
+    uint8_t getPinValue(uint pin) const { return gpio_get(pin); }
 
     bool transmitByte(uint8_t &byte);
     bool transmitData(const uint8_t* data, unsigned int n);
 
+    // TODO: Don't know the importance of using interrupts right now
+    // Static for callbacks
+    static void UART_RX_HANDLER() { NULL; }
+
 private:
 
-    bool m_Interrupt_UART = false;
     unsigned int m_BaudRate;
 
 };
