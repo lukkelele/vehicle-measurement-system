@@ -5,6 +5,7 @@ clang
 %cpp -std=c++17
 %c -std=c11
 
+
 -Isrc
 -Iinclude
 -Ilib
