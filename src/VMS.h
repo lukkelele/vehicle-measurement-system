@@ -5,12 +5,12 @@
 #include <math.h>
 
 #include "VMSPico.h"
-#include "pico/stdlib.h"
-#include "hardware/gpio.h"
+// #include "pico/stdlib.h"
+// #include "hardware/gpio.h"
 
 // #include "pico/stdio.h"
-#include "pico/binary_info.h"
-#include "hardware/uart.h"
+// #include "pico/binary_info.h"
+// #include "hardware/uart.h"
 
 #define UART_ID uart1
 #define BAUD_RATE 9600
