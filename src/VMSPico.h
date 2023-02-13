@@ -1,5 +1,8 @@
 #ifndef _VMSPICO_H
 #define _VMSPICO_H
+#include "hardware/irq.h"
+#include "hardware/uart.h"
+#include "hardware/gpio.h"
 
 #ifndef _u
 #ifdef __ASSEMBLER__
@@ -45,6 +48,15 @@
 #define UART0_RX GP1 // GP13, GP17
 #define UART1_TX GP4 // GP8
 #define UART1_RX GP5 // GP9
+
+#define UART_TX_PIN 0
+#define UART_RX_PIN 1
+
+#define BYTE 8
+#define PAYLOAD_FORMAT BYTE
+#define STOP_BITS 1
+#define PARITY UART_PARITY_NONE
+
 /* ADC */
 #define ADC0 GP26
 #define ADC1 GP27

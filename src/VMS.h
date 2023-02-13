@@ -21,17 +21,26 @@
 class VMSystem
 {
 public:
+    VMSystem();
+    ~VMSystem() = default;
 
-private:
+public:
     void initPin(uint pin, uint mode = OUT, uint val = LOW);
+    void initUART();
 
     void setPinDir(uint pin, uint mode);
     void setPinPull(uint pin, bool up);
 
-    uint8_t getPinValue(uint pin);
+    uint8_t getPinValue(uint pin) const;
     uint8_t setPinValue(uint pin, uint val);
 
-    bool transmitData(uint8_t &byte);
+    bool transmitByte(uint8_t &byte);
+    bool transmitData(const uint8_t* data, unsigned int n);
+
+private:
+
+    bool m_Interrupt_UART = false;
+    unsigned int m_BaudRate;
 
 };
 
