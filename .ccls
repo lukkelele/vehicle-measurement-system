@@ -8,7 +8,11 @@ clang
 
 -Isrc
 -Iinclude
--Ilib
+-Iinclude/hardware
+-Iinclude/hardware/regs
+-Iinclude/hardware/structs
+-Iinclude/pico
+
 
 -I/home/lukas/Code/embedded/pico-sdk/headers/pico/
 -I/home/lukas/Code/embedded/pico-sdk/headers/

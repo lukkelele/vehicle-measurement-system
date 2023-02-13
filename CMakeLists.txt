@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
 
-include(pico_sdk_import.cmake)
 
+set(PICO_EXTERNAL_LIB lib/pico-sdk/external)
+include(${PICO_EXTERNAL_LIB}/pico_sdk_import.cmake)
 
 project(VehicleMeasurementSystem)
 enable_language( C CXX ASM )
+
 
 add_executable(VMS src/VMS.cpp)
 
