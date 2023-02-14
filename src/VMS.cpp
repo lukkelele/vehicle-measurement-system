@@ -1,6 +1,5 @@
 #include "VMS.h"
 
-#define LOG(x) printf("%s\n", x)
 
 VMSystem::VMSystem(bool enableUART)
 {
@@ -52,20 +51,23 @@ void VMSystem::initPin(uint pin, uint direction, uint value)
 
 int main()
 {
-    #ifdef PICO_DEFAULT_LED_PIN
-    const uint PICO_LED = PICO_DEFAULT_LED_PIN;
-    gpio_init(PICO_LED);
-    gpio_set_dir(PICO_LED, OUT);
+#ifdef PICO_DEFAULT_LED_PIN
     VMSystem Vms;
+    const uint ONBOARD_LED = PICO_DEFAULT_LED_PIN;
+
+    Vms.initPin(GP15, OUT, HIGH);
+    Vms.initPin(ONBOARD_LED, OUT, HIGH);
 
     while (1)
     {
         sleep_ms(1200);
-        Vms.setPinValue(PICO_LED, LOW);
-        LOG("Heartbeat");
+        gpio_put(ONBOARD_LED, HIGH);
+        Vms.setPinValue(GP15, LOW);
+
         sleep_ms(1200);
-        Vms.setPinValue(PICO_LED, HIGH);
+        gpio_put(ONBOARD_LED, LOW);
+        Vms.setPinValue(GP15, HIGH);
     }
     return 0;
-    #endif
+#endif
 }

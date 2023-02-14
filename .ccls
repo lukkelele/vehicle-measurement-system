@@ -7,6 +7,9 @@ clang
 
 
 -Isrc
+-Isrc/VMS.cpp
+-Isrc/VMS.h
+-Isrc/VMSPico.h
 -Iinclude
 -Iinclude/hardware
 -Iinclude/hardware/regs

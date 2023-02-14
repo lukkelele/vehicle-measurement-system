@@ -5,11 +5,11 @@
 #include "hardware/gpio.h"
 
 #ifndef _u
-#ifdef __ASSEMBLER__
-#define _u(x) x
-#else
-#define _u(x) x ## u
-#endif
+    #ifdef __ASSEMBLER__
+        #define _u(x) x
+    #else
+        #define _u(x) x ## u
+    #endif
 #endif
 
 #define UART0_BASE _u(0x40034000)
@@ -25,24 +25,25 @@
 #define invLOW  1
 #define invHIGH 0
 /* General output/input pins */
-#define GP0  1
-#define GP1  3
-#define GP2  4
-#define GP3  5
-#define GP4  6
-#define GP5  7
-#define GP6  9
-#define GP7  10
-#define GP8  11
-#define GP9  12
-#define GP10 14
-#define GP11 15
-#define GP12 16
-#define GP13 17
-#define GP14 19
-#define GP15 20
-#define GP26 31
-#define GP27 32
+#define GP0  0
+#define GP1  1
+#define GP2  2
+#define GP3  3
+#define GP4  4
+#define GP5  5
+#define GP6  6
+#define GP7  7
+#define GP8  8
+#define GP9  9
+#define GP10 10
+#define GP11 11
+#define GP12 12
+#define GP13 13
+#define GP14 14
+#define GP15 15
+#define GP22 22
+#define GP26 26
+#define GP27 27
 /* UART */
 #define UART0_TX GP0 // GP12, GP16
 #define UART0_RX GP1 // GP13, GP17

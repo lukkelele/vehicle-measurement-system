@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#define LOG(x) printf("%s\n", x)
+
 #include "pico/stdlib.h"
 #include "pico/stdio.h"
 #include "pico/binary_info.h"
@@ -30,6 +32,8 @@ public:
 
     void setPinValue(uint pin, uint val) { gpio_put(pin, val); }
     uint8_t getPinValue(uint pin) const { return gpio_get(pin); }
+
+    void togglePin(uint pin);
 
     bool transmitByte(uint8_t &byte);
     bool transmitData(const uint8_t* data, unsigned int n);
