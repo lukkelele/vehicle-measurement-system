@@ -1,9 +1,7 @@
 #ifndef _VMS_H
 #define _VMS_H
 
-
 #include "VMSPico.h"
-
 #include <stdio.h>
 #include <math.h>
 
@@ -15,13 +13,12 @@
 
 #define UART_ID uart1
 #define BAUD_RATE 9600
-// #define UART_TX_PIN 8
 // #define UART_IRQ_ENABLED 1
 
 class VMSystem
 {
 public:
-    VMSystem();
+    VMSystem(bool enableUART = false);
     ~VMSystem() = default;
 
 public:

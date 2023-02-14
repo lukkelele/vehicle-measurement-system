@@ -1,10 +1,12 @@
 #include "VMS.h"
 
+#define LOG(x) printf("%s\n", x)
 
-VMSystem::VMSystem()
+VMSystem::VMSystem(bool enableUART)
 {
     stdio_init_all();
-    initUART();
+    if (enableUART)
+        initUART();
 }
 
 bool VMSystem::transmitByte(uint8_t &byte)
@@ -55,13 +57,12 @@ int main()
     gpio_init(PICO_LED);
     gpio_set_dir(PICO_LED, OUT);
     VMSystem Vms;
-    Vms.initUART();
 
     while (1)
     {
         sleep_ms(1200);
         Vms.setPinValue(PICO_LED, LOW);
-        printf("HEARTBEAT");
+        LOG("Heartbeat");
         sleep_ms(1200);
         Vms.setPinValue(PICO_LED, HIGH);
     }
