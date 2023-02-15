@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <stdio.h>
 #include <stdint.h>
 #include <math.h>
@@ -9,9 +8,8 @@
 #include "pico/stdio.h"
 #include "pico/binary_info.h"
 
-#include "hardware/irq.h"
-#include "hardware/uart.h"
-#include "hardware/gpio.h"
+//#include "pico/uart.h"
+//#include "pico/gpio.h"
 
 #include "VMSPico.h"
 
@@ -22,7 +20,6 @@
 #define UART_ID uart1
 #define BAUD_RATE 9600
 
-#define LOG(x) printf("%s\n", x)
 
 class VMSystem
 {
