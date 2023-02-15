@@ -5,17 +5,12 @@ clang
 %cpp -std=c++17
 %c -std=c11
 
-
--Isrc
--Isrc/VMS.cpp
--Isrc/VMS.h
--Isrc/VMSPico.h
--Iinclude
--Iinclude/hardware
--Iinclude/hardware/regs
--Iinclude/hardware/structs
--Iinclude/pico
+-I.
+-IVMS
+-IVMS/include
+-IVMS/include/pico-include
+-IVMS/include/pico-include/hardware
 
 
--I/home/lukas/Code/embedded/pico-sdk/headers/pico/
--I/home/lukas/Code/embedded/pico-sdk/headers/
+-Ihome/lukas/Code/embedded/pico-sdk/headers/pico/
+-Ihome/lukas/Code/embedded/pico-sdk/headers/
