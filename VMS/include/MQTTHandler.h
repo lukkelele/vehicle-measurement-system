@@ -2,9 +2,9 @@
 
 #include <string>
 
-#include "Log.h"
+//#include "Log.h"
 //#include "mosquitto.h"
-#include <mosquitto.h>
+//#include <mosquitto.h>
 
 
 class MQTTHandler

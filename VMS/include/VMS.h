@@ -8,8 +8,9 @@
 #include "pico/stdio.h"
 #include "pico/binary_info.h"
 
-//#include "pico/uart.h"
-//#include "pico/gpio.h"
+#include "hardware/uart.h"
+#include "hardware/gpio.h"
+#include "hardware/irq.h"
 
 #include "VMSPico.h"
 

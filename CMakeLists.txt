@@ -17,13 +17,14 @@ include_directories(${INCLUDE_DIR})
 set(HEADER_FILES ${INCLUDE_DIR}/VMS.h)
 set(SOURCES 
   ${SRC_DIR}/VMS.cpp 
-  ${SRC_DIR}/MQTTHandler.cpp
+  # ${SRC_DIR}/MQTTHandler.cpp
 
   ${INCLUDE_DIR}/VMS.h
-  ${INCLUDE_DIR}/MQTTHandler.h)
+  # ${INCLUDE_DIR}/MQTTHandler.h
+  # ${INCLUDE_DIR}/Log.h
+  )
 
 # target_include_directories(VMS PUBLIC ${INCLUDE_DIR})
-# add_executable(VMS VMS/src/VMS.cpp)
 add_executable(VMS ${SRC_DIR}/main.cpp ${SOURCES})
 
 pico_sdk_init()
@@ -35,7 +36,8 @@ target_link_libraries(
   hardware_uart
   hardware_gpio 
   freertos
-  PkgConfig::Mosquitto
+  # PkgConfig::Mosquitto
+  # libmosquitto
   )
 
 #include(GNUInstallDirs)

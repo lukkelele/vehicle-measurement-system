@@ -1,11 +1,5 @@
 #include "VMS.h"
 
-#include "stdlib.h"
-#include "stdio.h"
-#include "pico/binary_info.h"
-#include "uart.h"
-#include "gpio.h"
-#include "time.h"
 
 int main()
 {
