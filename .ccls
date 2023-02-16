@@ -1,0 +1,34 @@
+clang
+%h -x c++-header
+-Wall
+-Wextra
+%cpp -std=c++17
+%c -std=c11
+
+%cpp -Iinclude
+%cpp -Ilib/pico-sdk/src/common/pico_stdlib/include
+%cpp -Ilib/pico-sdk/src/common/pico_time/include
+%cpp -Ilib/pico-sdk/src/common/pico_time/include
+%cpp -Ilib/pico-sdk/src/common/pico_util/include
+%cpp -Ilib/pico-sdk/src/common/pico_binary_info/include
+
+%cpp -Ilib/pico-sdk/src/rp2_common/pico_stdio/include
+%cpp -Ilib/pico-sdk/src/rp2_common/pico_stdio_uart/include
+%cpp -Ilib/pico-sdk/src/rp2_common/pico_stdlib/include
+%cpp -Ilib/pico-sdk/src/rp2_common/pico_platform/include
+%cpp -Ilib/pico-sdk/src/rp2_common/pico_printf/include
+%cpp -Ilib/pico-sdk/src/rp2_common/pico_multicore/include
+
+%cpp -Ilib/pico-sdk/src/rp2_common/hardware_gpio/include
+%cpp -Ilib/pico-sdk/src/rp2_common/hardware_irq/include
+%cpp -Ilib/pico-sdk/src/rp2_common/hardware_uart/include
+%cpp -Ilib/pico-sdk/src/rp2_common/hardware_/include
+%cpp -Ilib/pico-sdk/src/rp2_common/hardware_/include
+
+%cpp -Ilib/freertos
+%cpp -Ilib/freertos/FreeRTOS-Kernel/include
+
+-IVMS/include
+
+-Ihome/lukas/Code/embedded/pico-sdk/headers/pico
+-Ihome/lukas/Code/embedded/pico-sdk/headers
