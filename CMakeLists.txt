@@ -1,51 +1,41 @@
 cmake_minimum_required(VERSION 3.12)
 
-set(OPENSSL_ROOT_DIR /usr/lib/openssl-1.1)
-set(OPENSSL_INCLUDE_DIR /usr/include/openssl-1.1)
-
-# Mosquitto
-set(MOSQUITTO_INCLUDE_DIR lib/mosquitto/include)
-set(MOSQUITTO_LIBRARY lib/mosquitto/lib)
-
 set(PROJECT_NAME VMS)
-set(INCLUDE_DIR VMS/include)
-set(SRC_DIR VMS/src)
-set(VMS_LIBS lib)
-set(PICO_EXTERNAL_LIB lib/pico-sdk/external)
+set(PROJECT_SRC_DIR VMS/src)
+set(PROJECT_INCLUDE_DIR VMS/include)
 
-include(${PICO_EXTERNAL_LIB}/pico_sdk_import.cmake)
+include(FindPkgConfig)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(Mosquitto IMPORTED_TARGET libmosquitto REQUIRED)
 
+include(lib/pico_sdk_import.cmake)
 project(${PROJECT_NAME} VERSION 1.0 LANGUAGES C CXX ASM)
-
-#add_subdirectory(lib/mosquitto)
-
-include_directories(
-  ${INCLUDE_DIR}
-  lib/mosquitto/include
-  lib/mosquitto/lib/include
-  lib/mosquitto/lib
-  /usr/include
-  )
-
-add_executable(VMS ${SRC_DIR}/main.cpp ${SRC_DIR}/VMS.cpp)
-
-add_library(mosquitto lib/mosquitto/lib/mosquitto.c) 
-install(TARGETS mosquitto)
-install(FILES mosquitto.h DESTINATION ${PROJECT_NAME}/include)
-
-#target_include_directories(${PROJECT_NAME} PUBLIC lib/mosquitto/lib)
-
 pico_sdk_init()
 
+#add_library(mosquitto SHARED IMPORTED GLOBAL)
+#find_package(mosquitto REQUIRED)
+#set_target_properties(mosquitto PROPERTIES IMPORTED_LOCATION /usr/local/lib/libmosquitto.so.1)
+#set_target_properties(mosquitto PROPERTIES IMPORTED_LOCATION /usr/lib/libmosquitto.so.1)
+#set_target_properties(mosquitto PROPERTIES IMPORTED_LOCATION lib/mosquitto/lib/libmosquitto.so.1)
+add_executable(${PROJECT_NAME}
+  ${PROJECT_SRC_DIR}/main.cpp 
+  ${PROJECT_SRC_DIR}/VMS.cpp
+)
 
-target_link_libraries(
-  VMS
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
+
+include_directories(
+  ${PROJECT_INCLUDE_DIR}
+)
+
+target_link_libraries(${PROJECT_NAME} PUBLIC
   pico_stdlib
   hardware_uart
   hardware_gpio 
   freertos
-  mosquitto
-  )
+  #mosquitto
+  PkgConfig::Mosquitto
+)
 
 add_subdirectory(lib/freertos)
 
@@ -53,6 +43,6 @@ pico_enable_stdio_usb(${PROJECT_NAME} 1)
 pico_enable_stdio_uart(${PROJECT_NAME} 1)
 pico_add_extra_outputs(VMS)
 
-#include(GNUInstallDirs)
-#install(TARGETS ${PROJECT_NAME})
-#install(FILES mosquitto.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+include(GNUInstallDirs)
+install(TARGETS ${PROJECT_NAME})
+install(FILES ${PROJECT_INCLUDE_DIR}/VMS.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
