@@ -5,7 +5,12 @@ clang
 %cpp -std=c++17
 %c -std=c11
 
+-IVMS/include
 %cpp -Iinclude
+%cpp -Iusr/include/opencv4
+%cpp -Iusr/include/opencv4/opencv2
+%cpp -Iusr/include/opencv4/opencv2/core
+
 %cpp -Ilib/pico-sdk/src/common/pico_stdlib/include
 %cpp -Ilib/pico-sdk/src/common/pico_time/include
 %cpp -Ilib/pico-sdk/src/common/pico_time/include
@@ -25,10 +30,7 @@ clang
 %cpp -Ilib/pico-sdk/src/rp2_common/hardware_/include
 %cpp -Ilib/pico-sdk/src/rp2_common/hardware_/include
 
+
 %cpp -Ilib/freertos
 %cpp -Ilib/freertos/FreeRTOS-Kernel/include
 
--IVMS/include
-
--Ihome/lukas/Code/embedded/pico-sdk/headers/pico
--Ihome/lukas/Code/embedded/pico-sdk/headers

@@ -4,7 +4,7 @@ set(PROJECT_NAME VMS)
 set(PROJECT_SRC_DIR VMS/src)
 set(PROJECT_INCLUDE_DIR VMS/include)
 
-include(lib/pico_sdk_import.cmake)
+include(cmake/pico_sdk_import.cmake)
 include(cmake/find_opencv.cmake)
 
 project(${PROJECT_NAME} LANGUAGES C CXX ASM)
@@ -21,6 +21,7 @@ include_directories(
 add_executable(${PROJECT_NAME}
   ${PROJECT_SRC_DIR}/main.cpp 
   ${PROJECT_SRC_DIR}/VMS.cpp
+  ${PROJECT_SRC_DIR}/Camera.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
