@@ -4,10 +4,18 @@ set(PROJECT_NAME VMS)
 set(PROJECT_SRC_DIR VMS/src)
 set(PROJECT_INCLUDE_DIR VMS/include)
 
+#set(GCC_COVERAGE_COMPILE_FLAGS "-fprofile-arcs -ftest-coverage")
+set(GCC_COVERAGE_COMPILE_FLAGS "-D_M_CEE")
+add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
+#-D_M_CEE
+
 include(cmake/pico_sdk_import.cmake)
 include(cmake/find_opencv.cmake)
 
 project(${PROJECT_NAME} LANGUAGES C CXX ASM)
+enable_language(C CXX ASM)
+
+set(CMAKE_CXX_STANDARD 11)
 
 find_package(OpenCV REQUIRED)
 pico_sdk_init()
