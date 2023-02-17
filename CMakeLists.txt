@@ -1,32 +1,33 @@
 cmake_minimum_required(VERSION 3.12)
-set(CMAKE_C_COMPILER "/usr/bin/arm-none-eabi-gcc-12.2.0")
-set(CMAKE_CXX_COMPILER "/usr/bin/arm-none-eabi-g++")
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_C_COMPILER "/usr/bin/arm-none-eabi-gcc-12.2.0")
+#set(CMAKE_CXX_COMPILER "/usr/bin/arm-none-eabi-g++")
+#set(CMAKE_C_STANDARD 11)
+#set(CMAKE_CXX_STANDARD 17)
 
 #include(FetchContent)
 #include(cmake/build_info.cmake)
-#include(cmake/find_opencv.cmake)
-include(pico_sdk_import.cmake)
+set(CMAKE_TOOLCHAIN_FILE cmake/toolchain.cmake)
+include(cmake/find_opencv.cmake)
+include(cmake/pico_sdk_import.cmake)
 
 set(PROJECT_NAME VMS)
-#set(PROJECT_SRC_DIR ${PROJECT_NAME})
-#set(PROJECT_INCLUDE_DIR ${PROJECT_NAME})
-#set(OpenCV_DIR "lib/opencv/build/lib")
+set(PROJECT_SRC_DIR ${PROJECT_NAME})
+set(PROJECT_INCLUDE_DIR ${PROJECT_NAME})
+set(OpenCV_DIR "lib/opencv/build/lib")
 
-project(VMS C CXX ASM)
-#find_package(OpenCV REQUIRED)
+project(${PROJECT_NAME} LANGUAGES C CXX ASM)
+find_package(OpenCV REQUIRED)
 pico_sdk_init()
 
-add_compile_options(-Wall -Wno-format -Wno-unused-function -Wno-maybe-uninitialized -Wno-unused-variable)
+add_compile_options(-mtune=native -Wall -Wno-format -Wno-unused-function -Wno-maybe-uninitialized -Wno-unused-variable)
 
 message("C COMPILER: " ${CMAKE_C_COMPILER})
 message("CXX COMPILER: " ${CMAKE_CXX_COMPILER})
 
 include_directories( ${PROJECT_INCLUDE_DIR} )
 
-add_executable(VMS
-  VMS/main.cpp
+add_executable(${PROJECT_NAME}
+  ${PROJECT_NAME}/main.cpp
 )
 
 #FetchContent_Declare(
@@ -40,8 +41,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
   hardware_uart
   hardware_gpio 
   freertos
-  #freertos-kernel
-  #{OpenCV_LIBS}
+  {OpenCV_LIBS}
 )
 
 add_subdirectory(lib/freertos)

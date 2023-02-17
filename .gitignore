@@ -9,6 +9,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+lib/opencv
 .Python
 build/
 develop-eggs/
