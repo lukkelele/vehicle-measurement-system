@@ -6,29 +6,25 @@ clang
 %c -std=c11
 
 -IVMS/include
+-I/usr/include/opencv4
 %cpp -Iinclude
 %cpp -Iusr/include/opencv4
-%cpp -Iusr/include/opencv4/opencv2
-%cpp -Iusr/include/opencv4/opencv2/core
 
-%cpp -Ilib/pico-sdk/src/common/pico_stdlib/include
-%cpp -Ilib/pico-sdk/src/common/pico_time/include
-%cpp -Ilib/pico-sdk/src/common/pico_time/include
-%cpp -Ilib/pico-sdk/src/common/pico_util/include
-%cpp -Ilib/pico-sdk/src/common/pico_binary_info/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/common/pico_stdlib/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/common/pico_time/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/common/pico_util/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/common/pico_binary_info/include
 
-%cpp -Ilib/pico-sdk/src/rp2_common/pico_stdio/include
-%cpp -Ilib/pico-sdk/src/rp2_common/pico_stdio_uart/include
-%cpp -Ilib/pico-sdk/src/rp2_common/pico_stdlib/include
-%cpp -Ilib/pico-sdk/src/rp2_common/pico_platform/include
-%cpp -Ilib/pico-sdk/src/rp2_common/pico_printf/include
-%cpp -Ilib/pico-sdk/src/rp2_common/pico_multicore/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/pico_stdio/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/pico_stdio_uart/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/pico_stdlib/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/pico_platform/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/pico_printf/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/pico_multicore/include
 
-%cpp -Ilib/pico-sdk/src/rp2_common/hardware_gpio/include
-%cpp -Ilib/pico-sdk/src/rp2_common/hardware_irq/include
-%cpp -Ilib/pico-sdk/src/rp2_common/hardware_uart/include
-%cpp -Ilib/pico-sdk/src/rp2_common/hardware_/include
-%cpp -Ilib/pico-sdk/src/rp2_common/hardware_/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/hardware_gpio/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/hardware_irq/include
+%cpp -I/home/lukas/Code/embedded/pico-sdk/src/rp2_common/hardware_uart/include
 
 
 %cpp -Ilib/freertos
