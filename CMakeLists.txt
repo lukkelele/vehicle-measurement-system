@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 3.12)
-#set(CMAKE_C_COMPILER "/usr/bin/arm-none-eabi-gcc-12.2.0")
-#set(CMAKE_CXX_COMPILER "/usr/bin/arm-none-eabi-g++")
-#set(CMAKE_C_STANDARD 11)
-#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_PREFIX_PATH "/usr/local/lib")
 
 #include(FetchContent)
 #include(cmake/build_info.cmake)
-set(CMAKE_TOOLCHAIN_FILE cmake/toolchain.cmake)
-include(cmake/find_opencv.cmake)
+#set(CMAKE_TOOLCHAIN_FILE cmake/toolchain.cmake)
+#include(cmake/find_opencv.cmake)
 include(cmake/pico_sdk_import.cmake)
 
 set(PROJECT_NAME VMS)
@@ -16,10 +15,11 @@ set(PROJECT_INCLUDE_DIR ${PROJECT_NAME})
 set(OpenCV_DIR "lib/opencv/build/lib")
 
 project(${PROJECT_NAME} LANGUAGES C CXX ASM)
-find_package(OpenCV REQUIRED)
 pico_sdk_init()
+#find_package(OpenCV REQUIRED)
+find_package(raspicam REQUIRED)
 
-add_compile_options(-mtune=native -Wall -Wno-format -Wno-unused-function -Wno-maybe-uninitialized -Wno-unused-variable)
+add_compile_options(-Wall -Wno-format -Wno-unused-function -Wno-maybe-uninitialized -Wno-unused-variable)
 
 message("C COMPILER: " ${CMAKE_C_COMPILER})
 message("CXX COMPILER: " ${CMAKE_CXX_COMPILER})
@@ -37,11 +37,12 @@ add_executable(${PROJECT_NAME}
 #)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
-  pico_stdlib
-  hardware_uart
-  hardware_gpio 
-  freertos
-  {OpenCV_LIBS}
+  #pico_stdlib
+  #hardware_uart
+  #hardware_gpio 
+  #freertos
+  ${raspicam_LIBS}
+  #{OpenCV_LIBS}
 )
 
 add_subdirectory(lib/freertos)
