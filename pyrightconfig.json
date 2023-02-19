@@ -1,0 +1,20 @@
+{
+    "include": [
+      "VMS"
+    ],
+
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache**"
+    ],
+
+    "extraPaths": [
+      "/usr/lib/python3.10/site-packages",
+      "~/.local/lib/python3.10/site-packages",
+      "/home/lukas/Software/libs/micropython/pkg/micropython-lib/usr/lib",
+      "/home/lukas/Software/libs/micropython/pkg/micropython-lib/usr/lib/micropython"
+    ],
+
+    "reportGeneralTypeIssues": "none",
+    "reportWildcardImportFromLibrary": "none"
+}

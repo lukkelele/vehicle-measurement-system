@@ -2,6 +2,8 @@ from cv2 import cv2 as cv
 import numpy as np
 import socket
 import picamera
+# Wifi
+import network
 
 # Unencoded format rounds up the request resolution
 # Horizontal rounds to the nearest multiple of 32 
@@ -11,13 +13,13 @@ IP_ADDR = 'localhost'
 PORT = 8000
 WIDTH = 640
 HEIGHT = 480
-FRAMEWRATE = 30
+FRAMERATE = 30
 COLOR_FORMAT = 'bgr'
 
 
 class Camera:
 
-    def __init__(self, width=WIDTH, height=HEIGHT, framerate=FRAMEWRATE,
+    def __init__(self, width=WIDTH, height=HEIGHT, framerate=FRAMERATE,
                  ip_addr=IP_ADDR, port=PORT, color_format=COLOR_FORMAT):
         self.width, self.height = width, height
         self.framerate = framerate
@@ -45,6 +47,12 @@ class Camera:
         # Get image
         image = self.capture_image()
         # FIXME: Send frame
-        self.sock.sendall(image)
+        # self.sock.sendall(image)
         # Output frame to video file
         self.out.write(image)
+
+    def connect_wifi(self, ssid, passwd):
+        self.wlan = network.WLAN()
+
+
+
