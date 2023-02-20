@@ -21,7 +21,7 @@ for n in scan:
     network_address = binascii.hexlify(n[1]).decode('UTF-8')
     network_channel = n[2]
     print('''Network
-          name:    %s
+          name: %s
           address: %s
           channel: %s
           ''' % (network_name, network_address, network_channel))

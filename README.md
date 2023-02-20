@@ -46,3 +46,7 @@ OS: *freeRTOS*
 
 ## Building
 
+
+## Pico
+
+UART communication via GP4 and GP5 (physical pin 6 and 7)
