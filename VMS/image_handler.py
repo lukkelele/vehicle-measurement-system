@@ -6,14 +6,15 @@ import numpy as np
 import math
 
 class rgb_color(Enum):
-    red = (255,0,0)
-    green = (0,255,0)
-    blue = (0,0,255)
+    # rgb values are flipped?
+    blue = (255, 0, 0)
+    red = (0, 0, 255)
+    green = (0, 255, 0)
 
 LOCAL_DIR_IMAGES = "../img"
-car_image = '../img/red_car.jpg'
-# car_image = '../img/drive-by.jpg'
-# car_image = '../img/crime-scene.jpg'
+car_image = LOCAL_DIR_IMAGES + '/red_car.jpg'
+# car_image = LOCAL_DIR_IMAGES + '/drive-by.jpg'
+# car_image = LOCAL_DIR_IMAGES + '/crime-scene.jpg'
 
 # TODO: Add parameters for varying threshold values
 def get_bounding_box(img: str):
@@ -22,7 +23,7 @@ def get_bounding_box(img: str):
     img: path to image
     """
     font_color = (0, 255, 0)
-    box_color = rgb_color.green.value
+    box_color = rgb_color.blue.value
     font_color = box_color # Set font and rectangle to same color
 
     image = cv.imread(img) 
@@ -33,8 +34,8 @@ def get_bounding_box(img: str):
     x,y,w,h = cv.boundingRect(thresh)
     cv.rectangle(image, (x, y), (x + w, y + h), box_color, 2)
     cv.putText(image, "w={},h={}".format(w,h), (x,y - 10), cv.FONT_HERSHEY_SIMPLEX, 0.7, font_color, 2)
-    cv.imshow('tresh', thresh)
-    cv.imshow('image', image)
+    cv.imshow('Tresh', thresh)
+    cv.imshow('Boxed image', image)
     cv.waitKey()
 
 
@@ -184,4 +185,4 @@ def process_img(img: str):
     contours_image, cnts = detect_contours(edge_image)
     return contours_image, cnts
 
-# get_bounding_box(car_image)
+get_bounding_box(car_image)
