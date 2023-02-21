@@ -9,10 +9,8 @@ Project start: *24/1-2023*<br>
 ## System
 OS: *freeRTOS*
 ### Prerequities
-- gcc
 - git
 - freeRTOS
-- CMake
 
 
 #### Components
@@ -31,22 +29,18 @@ OS: *freeRTOS*
 > - **...**
 
 ---
-## Configuration
-#### Submodules
-
-> <pre>git clone https://github.com/RaspberryPi/pico-sdk --recurse-submodules
-> git clone -b smp https://github.com/FreeRTOS/FreeRTOS-Kernel --recurse-submodules</pre>
-
-##### Environment variables
-
-> <pre>export PICO_SDK_PATH=$PWD/pico-sdk
-> export FREERTOS_KERNEL_PATH=$PWD/FreeRTOS-Kernel</pre>
-
----
 
 ## Building
 
 
 ## Pico
 
-UART communication via GP4 and GP5 (physical pin 6 and 7)
+UART communication via GP4 and GP5 (physical pin 6 and 7)  
+<br>
+
+| Resolution | FPS | Depth (bits) | Frame size (mb)| Data transfer/s |
+|----------  | --- | --- | --- | --- |
+| 640x480    | 20  |   24    | 0.920 |
+| 640x480    | 20  |   12    | 0.461 |
+| 1280x1080 | 20 | 24 | 4.147 |
+| 1280x1080 | 20 | 12 | 2.074 |
