@@ -4,6 +4,9 @@ __pycache__/
 *$py.class
 *.pdf
 */**/.pdf
+**/_secret.py
+**/*/_secret.py
+VMS/_secret.py
 
 # C extensions
 *.so

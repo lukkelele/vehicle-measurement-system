@@ -185,4 +185,6 @@ def process_img(img: str):
     contours_image, cnts = detect_contours(edge_image)
     return contours_image, cnts
 
+
+
 get_bounding_box(car_image)

@@ -1,6 +1,0 @@
-#set(GCC_COVERAGE_COMPILE_FLAGS "-D_M_CEE")
-#add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})
-#get_property(cxx_features GLOBAL PROPERTY CMAKE_CXX_KNOWN_FEATURES)
-#set(CMAKE_CXX_COMPILE_FEATURES ${cxx_features})
-#set(GLOBAL PROPERTY CMAKE_C_COMPILE_FEATURES ${cxx_features})
-

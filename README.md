@@ -8,9 +8,10 @@ Project start: *24/1-2023*<br>
 ---
 ## System
 OS: *freeRTOS*
-### Prerequities
-- git
+### Dependencies
 - freeRTOS
+- paramiko 
+- picamera
 
 
 #### Components
@@ -19,14 +20,7 @@ OS: *freeRTOS*
 - Wiring
 - LEDs
 - Sensors 
-> - PIR sensor
-> - Ultrasonic sensor
-> - Magnetic sensor (*for inductive wiring*)
-> - Light seeking sensor
-> - Light dependent resistor
-> - Line tracking module
-> - Small laser module (*testing*)
-> - **...**
+
 
 ---
 

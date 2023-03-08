@@ -1,7 +1,8 @@
 import picamera
-import io
 import socket
 import struct
+import time
+import io
 
 # create a socket and bind to a port
 server_socket = socket.socket()

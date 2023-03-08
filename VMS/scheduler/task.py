@@ -1,8 +1,8 @@
-import _thread
-import micropython
 from micropython import schedule
 from micropython import const
-from utime import sleep_ms
+from utime import sleep_ms # pyright: ignore
+import _thread
+import micropython
 
 class Task:
     def __init__(self, name, delay_ms=500, priority=1):
