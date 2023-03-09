@@ -76,22 +76,24 @@ class VmsClient:
         logger.info(f'Initializing UART with: id={self.uart_id}, baudrate={self.baudrate}')
         return UART(self.uart_id, self.baudrate)
 
-    def recieve_data(self):
-        logger.info("--> recieve_data - UART - CLIENT")
-        if self.uart:
-            if self.uart.any():
-                data = self.uart.readline()
-                if data is not None:
-                    print('recieved: %s' % data)
-                    logger.info("Sending recieved data...")
-                    self.transmit_data(data)
-                # return data
+    def recieve_uart_data(self, chunksize=1024):
+        logger.info("Recieving data")
+        if self.uart and self.sock:
+            file = b''
+            while True:
+                data = self.uart.read(chunksize)
+                print(f"Recieved: {data}")
+                file += data
+                data_length = len(data)
 
-    def transmit_data(self, data):
-        if self.sock:
-            self.sock.sendall(data)
-
-    def send_file(self, filepath, chunksize=2048):
+                if data_length < chunksize:
+                    print('len of data:', data_length)
+                    break
+            print(f"Returning: {file}")
+            return file
+            # self.send_file_bytes(file, chunksize)
+                    
+    def send_file(self, filepath: str, chunksize=2048):
         """
         Send file to server.
         Chunksize is automatically synced on the server to whatever is set in this function
@@ -110,4 +112,33 @@ class VmsClient:
                 for i in range(0, data_length, chunksize):
                     self.sock.sendall(data[i : i+chunksize])
         
+    def send_file_bytes(self, data: bytes, chunksize=2048):
+        """
+        Send file to server.
+        Chunksize is automatically synced on the server to whatever is set in this function
+        """
+        if self.sock:
+            data_length = len(data)
+            # Send chunk size and data length as the first 8 bytes to the server
+            chunksize_bytes = chunksize.to_bytes(4, 'big')
+            data_length_bytes = data_length.to_bytes(4, 'big')
+            self.sock.sendall(chunksize_bytes)
+            self.sock.sendall(data_length_bytes)
+
+            # Send the data
+            for i in range(0, data_length, chunksize):
+                self.sock.sendall(data[i : i+chunksize])
+    
+    def on_update(self, chunksize=2048):
+        """
+        On update function, to run every cycle
+        Takes care of all that the pico has to do, polling, transmission etc
+        """
+        sock = self.sock; uart = self.uart
+        if sock and uart:
+            if uart.any():
+                # Read uart
+                uart_data = self.recieve_uart_data(chunksize) 
+                # Transmit this file in bytes to the server
+                self.send_file_bytes(uart_data)
 

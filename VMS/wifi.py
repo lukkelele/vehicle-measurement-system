@@ -1,4 +1,4 @@
-import _secret as secret
+# import _secret as secret
 from logger import log
 from time import sleep
 import binascii
@@ -6,14 +6,10 @@ import network
 
 
 class Wifi:
-    DEFAULT_TIMEOUT = 15
-    DEFAULT_SSID = secret.WIFI_SSID
-    DEFAULT_PASSWORD = secret.WIFI_PASSWORD
-
     station = None
-    ssid = DEFAULT_SSID
-    password = DEFAULT_PASSWORD
-    timeout = DEFAULT_TIMEOUT
+    ssid = None 
+    password = None 
+    timeout = None 
 
     def __init__(self, ssid=None, password=None, timeout=None):
         if ssid is not None:
