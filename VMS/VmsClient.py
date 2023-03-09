@@ -1,34 +1,22 @@
 import pico_logger as logger
 from machine import UART
-import _secret as secret
+import _secret as s
 import wifi as _wifi
 import socket
 import time
 
-# WiFi configuraton
-WIFI_SSID = secret.WIFI_SSID
-WIFI_PASSWORD = secret.WIFI_PASSWORD
-
-HOST_ADDR = secret.HOST_ADDR
-SOCK_PORT = secret.SOCK_PORT
-DEFAULT_TIMEOUT = 15
-UART_ID = 0
-DEFAULT_BAUDRATE = 9600
-
-CRLF = '\r\n'
-
-class Error(Exception):
-    pass
-
 class VmsClient:
+    DEFAULT_TIMEOUT = 15
+    UART_ID = 0
+    DEFAULT_BAUDRATE = 115200
     
-    host = HOST_ADDR
-    port = SOCK_PORT
-    ssid = WIFI_SSID
-    password = WIFI_PASSWORD
+    host = s.HOST_ADDR
+    port = s.SOCK_PORT
+    ssid = s.WIFI_SSID
+    password = s.WIFI_PASSWORD
     timeout = DEFAULT_TIMEOUT
     transmit_delay = 0.10
-    wifi = _wifi.Wifi()
+    wifi = None
     sock = None
     uart = None
     uart_id = UART_ID
@@ -36,6 +24,7 @@ class VmsClient:
 
     def __init__(self, host=None, port=None, ssid=None, password=None,
                        timeout=None, uart_id=None, baudrate=None):
+        logger.info("Creating VMSClient")
         if host is not None:
             self.host = host
         if port is not None:
@@ -44,20 +33,29 @@ class VmsClient:
             self.ssid = ssid 
         if password is not None:
             self.password = password
-        # Start uart
+
+        # Setup wifi connection
+        self.wifi = _wifi.Wifi()
+        self.wifi.connect(self.ssid, self.password)
+        # Setup uart communication
         self.uart = self.init_uart(uart_id, baudrate)
+        # Setup socket and connect to VMSServer
+        if host and port:
+            self.connect(host=host, port=port)
 
     def _create_socket_connection(self, addr, port, timeout=None):
+        logger.info("Creating new socket connection")
         try:
             sock = socket.socket()
             sock_addr = socket.getaddrinfo(addr, port)[0][-1]
             sock.connect(sock_addr)
             return sock
         except:
-            raise Error("[ERROR] Could not connect to %r" % (addr))
+            print("[ERROR] Could not connect to %r" % (addr))
 
     def connect_to_wifi(self, ssid, password):
-        self.wifi.connect(ssid, password)
+        if self.wifi is not None:
+            self.wifi.connect(ssid, password)
 
     def connect(self, host=None, port=None, timeout=None):
         if host:
@@ -74,30 +72,42 @@ class VmsClient:
         if baudrate is not None:
             self.baudrate = baudrate
         if not uart_id and not baudrate:
-            logger.log_warning("No UART id or baudrate was given, using default settings")
-        logger.log_info(f'Initializing UART -> id={self.uart_id}, baudrate={self.baudrate}')
+            logger.warn("No UART id or baudrate was given, using default settings")
+        logger.info(f'Initializing UART with: id={self.uart_id}, baudrate={self.baudrate}')
         return UART(self.uart_id, self.baudrate)
 
-    def recieve_data(self, uart):
-        data = uart.readline()
-        if data is not None:
-            print('recieved: %s' % data)
-        return data
+    def recieve_data(self):
+        logger.info("--> recieve_data - UART - CLIENT")
+        if self.uart:
+            if self.uart.any():
+                data = self.uart.readline()
+                if data is not None:
+                    print('recieved: %s' % data)
+                    logger.info("Sending recieved data...")
+                    self.transmit_data(data)
+                # return data
 
     def transmit_data(self, data):
         if self.sock:
-            self.sock.send(data)
-            time.sleep(self.transmit_delay)
+            self.sock.sendall(data)
+
+    def send_file(self, filepath, chunksize=2048):
+        """
+        Send file to server.
+        Chunksize is automatically synced on the server to whatever is set in this function
+        """
+        if self.sock:
+            with open(filepath, 'rb') as file:
+                data = file.read()
+                data_length = len(data)
+                # Send chunk size and data length as the first 8 bytes to the server
+                chunksize_bytes = chunksize.to_bytes(4, 'big')
+                data_length_bytes = data_length.to_bytes(4, 'big')
+                self.sock.sendall(chunksize_bytes)
+                self.sock.sendall(data_length_bytes)
+
+                # Send the data
+                for i in range(0, data_length, chunksize):
+                    self.sock.sendall(data[i : i+chunksize])
         
-        
-    def send_log_msg(self, message):
-        # Check if connection is up and running
-        if self.sock and self.wifi.station is not None:
-            try:
-                self.sock.send(message)
-            except:
-                raise Error("[PICO] Could not transmit log message!")
-
-
-
 
