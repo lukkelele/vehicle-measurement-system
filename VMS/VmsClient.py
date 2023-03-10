@@ -1,5 +1,5 @@
 import pico_logger as logger
-from machine import UART
+from machine import UART, Pin
 import _secret as s
 import wifi as _wifi
 import socket
@@ -9,13 +9,16 @@ class VmsClient:
     DEFAULT_TIMEOUT = 15
     UART_ID = 0
     DEFAULT_BAUDRATE = 115200
-    
+    ONBOARD_LED = Pin("LED", Pin.OUT)
+    tx_pin = Pin(0)
+    rx_pin = Pin(1)
+
     host = s.HOST_ADDR
     port = s.SOCK_PORT
     ssid = s.WIFI_SSID
     password = s.WIFI_PASSWORD
     timeout = DEFAULT_TIMEOUT
-    transmit_delay = 0.10
+    transmit_delay = 0.05
     wifi = None
     sock = None
     uart = None
@@ -33,6 +36,9 @@ class VmsClient:
             self.ssid = ssid 
         if password is not None:
             self.password = password
+
+        self.ONBOARD_LED.value(1)
+        time.sleep(2)
 
         # Setup wifi connection
         self.wifi = _wifi.Wifi()
@@ -74,7 +80,7 @@ class VmsClient:
         if not uart_id and not baudrate:
             logger.warn("No UART id or baudrate was given, using default settings")
         logger.info(f'Initializing UART with: id={self.uart_id}, baudrate={self.baudrate}')
-        return UART(self.uart_id, self.baudrate)
+        return UART(self.uart_id, self.baudrate, parity=None, stop=1, bits=8, tx=self.tx_pin, rx=self.rx_pin)
 
     def recieve_uart_data(self, chunksize=1024):
         logger.info("Recieving data")
@@ -142,3 +148,14 @@ class VmsClient:
                 # Transmit this file in bytes to the server
                 self.send_file_bytes(uart_data)
 
+    def test_uart_recieval(self):
+        """ Test for recieving data via UART """
+        uart = self.uart
+        if uart:
+            self.ONBOARD_LED.toggle()
+            print("Checking for data")
+            time.sleep(0.8)
+            if uart.any():
+                data = uart.read()
+                print(f"Recieved: {data}")
+                self.ONBOARD_LED.value(1)
