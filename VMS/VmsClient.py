@@ -27,7 +27,7 @@ class VmsClient:
 
     def __init__(self, host=None, port=None, ssid=None, password=None,
                        timeout=None, uart_id=None, baudrate=None):
-        logger.info("Creating VMSClient")
+        # logger.info("Creating VMSClient")
         if host is not None:
             self.host = host
         if port is not None:
@@ -50,7 +50,7 @@ class VmsClient:
             self.connect(host=host, port=port)
 
     def _create_socket_connection(self, addr, port, timeout=None):
-        logger.info("Creating new socket connection")
+        # logger.info("Creating new socket connection")
         try:
             sock = socket.socket()
             sock_addr = socket.getaddrinfo(addr, port)[0][-1]
@@ -79,37 +79,33 @@ class VmsClient:
             self.baudrate = baudrate
         if not uart_id and not baudrate:
             logger.warn("No UART id or baudrate was given, using default settings")
-        logger.info(f'Initializing UART with: id={self.uart_id}, baudrate={self.baudrate}')
+        # logger.info(f'Initializing UART with: id={self.uart_id}, baudrate={self.baudrate}')
         return UART(self.uart_id, self.baudrate, parity=None, stop=1, bits=8, tx=self.tx_pin, rx=self.rx_pin)
 
     def recieve_uart_data(self, chunk_size=1024):
         """ Saves all data to the onboard memory and returns the file in bytes """
-        logger.info("Recieving data")
-        if self.uart and self.sock:
+        if self.uart:
             file = b""
             while True:
                 data = self.uart.read(chunk_size)
                 # print(f"Recieved: {data}")
+                data_len = len(data)
                 file += data
-                data_length = len(data)
-
-                if data_length < chunk_size:
-                    # print("len of data:", data_length)
+                if data_len < chunk_size:
                     break
-            print(f"Returning: {file}")
+
+            # print(f"Returning: {file}")
             return file
-            # self.send_file_bytes(file, chunk_size)
 
     def recieve_and_send_uart_data(self, chunk_size=1024):
         """ Recieves data on the UART and sends it directly to the server """
-        uart = self.uart; sock = self.sock
-        if uart and sock:
-            logger.info("Recieving data")
-            while uart.any():
-                data = uart.read(chunk_size)
-                print(f"Recieved: {data}", end="")
-                sock.sendall(data)
-                print("... sent")
+        if self.uart and self.sock:
+            # logger.info("Recieving data")
+            while self.uart.any():
+                data = self.uart.read(chunk_size)
+                # print(f"Recieved: {data}", end="")
+                self.sock.sendall(data)
+                # print("... sent")
 
     def send_file(self, filepath: str, chunk_size=1024):
         """
@@ -138,8 +134,8 @@ class VmsClient:
         if self.sock:
             data_length = len(data)
             # Send chunk size and data length as the first 8 bytes to the server
-            chunk_size_bytes = chunk_size.to_bytes(4, 'big')
-            data_length_bytes = data_length.to_bytes(4, 'big')
+            chunk_size_bytes = chunk_size.to_bytes(4, "big")
+            data_length_bytes = data_length.to_bytes(4, "big")
             self.sock.sendall(chunk_size_bytes)
             self.sock.sendall(data_length_bytes)
 
@@ -152,24 +148,12 @@ class VmsClient:
         On update function, to run every cycle
         Takes care of all that the pico has to do, polling, transmission etc
         """
-        sock = self.sock; uart = self.uart
-        if sock and uart:
+        if self.sock and self.uart:
             self.ONBOARD_LED.value(0)
-            while uart.any():
+            if self.uart.any():
                 # Read uart
                 self.ONBOARD_LED.value(1)
                 uart_data = self.recieve_uart_data(chunk_size) 
                 # Transmit this file in bytes to the server
                 self.send_file_bytes(uart_data)
 
-    def test_uart_recieval(self):
-        """ Test for recieving data via UART """
-        uart = self.uart
-        if uart:
-            self.ONBOARD_LED.toggle()
-            print("Checking for data")
-            time.sleep(0.8)
-            if uart.any():
-                data = uart.read()
-                print(f"Recieved: {data}")
-                self.ONBOARD_LED.value(1)

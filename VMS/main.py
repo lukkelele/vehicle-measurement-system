@@ -1,34 +1,20 @@
-import picamera
-import socket
-import struct
-import time
-import io
+from time import sleep
+import VmsClient
+import _secret as s
 
-# create a socket and bind to a port
-server_socket = socket.socket()
-server_socket.bind(('0.0.0.0', 8000))
-server_socket.listen(0)
+print('./main.py')
+chunksize = 1024
+baudrate = 57600
 
-# accept a single connection and make a file-like object out of it
-connection = server_socket.accept()[0].makefile('wb')
-try:
-    with picamera.PiCamera() as camera:
-        camera.resolution = (640, 480)
-        # start a preview
-        camera.start_preview()
-        # give the camera time to warm up
-        time.sleep(2)
-        stream = io.BytesIO()
-        for _ in camera.capture_continuous(stream, 'jpeg'):
-            # write the length of the capture to the stream and flush to ensure it actually gets sent
-            connection.write(struct.pack('<L', stream.tell()))
-            connection.flush()
-            # rewind the stream and send the image data over the wire
-            stream.seek(0)
-            connection.write(stream.read())
-            # reset the stream for the next capture
-            stream.seek(0)
-            stream.truncate()
-finally:
-    connection.close()
-    server_socket.close()
+client = VmsClient.VmsClient(host = s.HOST_ADDR,
+                             port = s.SOCK_PORT,
+                             ssid = s.WIFI_SSID,
+                             password = s.WIFI_PASSWORD,
+                             baudrate = baudrate)
+
+print("Client listening on uart..")
+while True:
+    #client.recieve_and_send_uart_data(chunksize)
+    client.on_update(chunksize)
+    # client.test_uart_recieval()
+    # sleep(0.25)

@@ -108,8 +108,9 @@ class VmsCamera:
                         print("No chunks left, sending transfer complete...")
                         break
                     print(f"Sending chunk | length: {chunk_len}")
+                    print(f"Chunk:\n{chunk}\n")
                     ser.write(chunk)
-                    time.sleep(0.01)
+                    # time.sleep(0.01)
 
                 transfer_finish = time.perf_counter()
                 time_spent = transfer_finish - transfer_begin
@@ -159,4 +160,5 @@ class VmsCamera:
             while i < test_length:
                 ser.write(b"dummy data")
                 time.sleep(1)
+
 
