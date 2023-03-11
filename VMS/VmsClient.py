@@ -82,24 +82,36 @@ class VmsClient:
         logger.info(f'Initializing UART with: id={self.uart_id}, baudrate={self.baudrate}')
         return UART(self.uart_id, self.baudrate, parity=None, stop=1, bits=8, tx=self.tx_pin, rx=self.rx_pin)
 
-    def recieve_uart_data(self, chunksize=1024):
+    def recieve_uart_data(self, chunk_size=1024):
+        """ Saves all data to the onboard memory and returns the file in bytes """
         logger.info("Recieving data")
         if self.uart and self.sock:
-            file = b''
+            file = b""
             while True:
-                data = self.uart.read(chunksize)
-                print(f"Recieved: {data}")
+                data = self.uart.read(chunk_size)
+                # print(f"Recieved: {data}")
                 file += data
                 data_length = len(data)
 
-                if data_length < chunksize:
-                    print('len of data:', data_length)
+                if data_length < chunk_size:
+                    # print("len of data:", data_length)
                     break
             print(f"Returning: {file}")
             return file
-            # self.send_file_bytes(file, chunksize)
-                    
-    def send_file(self, filepath: str, chunksize=2048):
+            # self.send_file_bytes(file, chunk_size)
+
+    def recieve_and_send_uart_data(self, chunk_size=1024):
+        """ Recieves data on the UART and sends it directly to the server """
+        uart = self.uart; sock = self.sock
+        if uart and sock:
+            logger.info("Recieving data")
+            while uart.any():
+                data = uart.read(chunk_size)
+                print(f"Recieved: {data}", end="")
+                sock.sendall(data)
+                print("... sent")
+
+    def send_file(self, filepath: str, chunk_size=1024):
         """
         Send file to server.
         Chunksize is automatically synced on the server to whatever is set in this function
@@ -109,16 +121,16 @@ class VmsClient:
                 data = file.read()
                 data_length = len(data)
                 # Send chunk size and data length as the first 8 bytes to the server
-                chunksize_bytes = chunksize.to_bytes(4, 'big')
+                chunk_size_bytes = chunk_size.to_bytes(4, 'big')
                 data_length_bytes = data_length.to_bytes(4, 'big')
-                self.sock.sendall(chunksize_bytes)
+                self.sock.sendall(chunk_size_bytes)
                 self.sock.sendall(data_length_bytes)
 
                 # Send the data
-                for i in range(0, data_length, chunksize):
-                    self.sock.sendall(data[i : i+chunksize])
+                for i in range(0, data_length, chunk_size):
+                    self.sock.sendall(data[i : i+chunk_size])
         
-    def send_file_bytes(self, data: bytes, chunksize=2048):
+    def send_file_bytes(self, data: bytes, chunk_size=1024):
         """
         Send file to server.
         Chunksize is automatically synced on the server to whatever is set in this function
@@ -126,25 +138,27 @@ class VmsClient:
         if self.sock:
             data_length = len(data)
             # Send chunk size and data length as the first 8 bytes to the server
-            chunksize_bytes = chunksize.to_bytes(4, 'big')
+            chunk_size_bytes = chunk_size.to_bytes(4, 'big')
             data_length_bytes = data_length.to_bytes(4, 'big')
-            self.sock.sendall(chunksize_bytes)
+            self.sock.sendall(chunk_size_bytes)
             self.sock.sendall(data_length_bytes)
 
             # Send the data
-            for i in range(0, data_length, chunksize):
-                self.sock.sendall(data[i : i+chunksize])
+            for i in range(0, data_length, chunk_size):
+                self.sock.sendall(data[i : i+chunk_size])
     
-    def on_update(self, chunksize=2048):
+    def on_update(self, chunk_size=1024):
         """
         On update function, to run every cycle
         Takes care of all that the pico has to do, polling, transmission etc
         """
         sock = self.sock; uart = self.uart
         if sock and uart:
-            if uart.any():
+            self.ONBOARD_LED.value(0)
+            while uart.any():
                 # Read uart
-                uart_data = self.recieve_uart_data(chunksize) 
+                self.ONBOARD_LED.value(1)
+                uart_data = self.recieve_uart_data(chunk_size) 
                 # Transmit this file in bytes to the server
                 self.send_file_bytes(uart_data)
 
