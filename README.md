@@ -32,7 +32,6 @@ Camera component of the system which resides on the **Raspberry Pi**.
 Server to recieve the transmitted data from **VMSClient**.
 
 
-
 <p style="font-size: 28px;"><strong>How it works</strong>:</p>
 <div align="center">
 <p style="font-weight: 600"> VMSCamera 🠲  VMSClient ⇆ VMSServer </p> 
@@ -42,6 +41,10 @@ The saved frames/images are then sent to another program which processes the ima
 </div>
 
 
+### TODO
+- Fix sent filesize bug
+- Continous frame transmission from VMSCamera
+- Implement feature to image process locally saved files from VMSServer
 
 
 ---
