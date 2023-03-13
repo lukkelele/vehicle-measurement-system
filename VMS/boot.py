@@ -1,5 +1,5 @@
 from time import sleep
-import VmsClient
+import VMSClient
 import _secret as s
 
 # Test

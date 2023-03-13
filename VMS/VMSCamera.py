@@ -1,32 +1,23 @@
-from os import stat
+import default_config as default
 from logger import log
+from os import stat
 import picamera
 import serial
 import time
-
-DEFAULT_SAVE_DIR = './img/'
-DEFAULT_BAUDRATE = 57600
-DEFAULT_PORT = '/dev/ttyAMA0'
-DEFAULT_TIMEOUT = 1
-
-normal_res_img = './img/image1.jpg'
-low_res_img = './img/img_lowres.jpg'
-transfer_file = low_res_img
 
 LOW_RESOLUTION = (160, 120)
 DEFAULT_RESOLUTION = (320, 240)
 HIGH_RESOLUTION = (640, 480)
 
-
 class Error(Exception):
     pass
 
-class VmsCamera:
+class VMSCamera:
 
-    img_save_dir = DEFAULT_SAVE_DIR
-    port = DEFAULT_PORT
-    baudrate = DEFAULT_BAUDRATE
-    timeout = DEFAULT_TIMEOUT
+    img_save_dir = default.SAVE_DIR
+    port = default.PI_PORT
+    baudrate = default.BAUDRATE
+    timeout = default.TIMEOUT
     resolution = DEFAULT_RESOLUTION
 
     def __init__(self, resolution=None, port=None, baudrate=None, timeout=None, img_save_dir=None):
@@ -99,7 +90,11 @@ class VmsCamera:
                 print(f"Starting transfer: {file}, chunk size: {chunk_size}")
                 transfer_begin = time.perf_counter()
 
+                # TODO: Fix this for file size syncing
                 filesize = self.estimate_filesize(file)
+                filesize_b = filesize.to_bytes(4, "big")
+                print(f"Filesize: {filesize}\nFilesize (bytes): {filesize_b}")
+                ser.write(filesize_b)
 
                 while True:
                     chunk = tfile.read(chunk_size)
@@ -108,7 +103,7 @@ class VmsCamera:
                         print("No chunks left, sending transfer complete...")
                         break
                     print(f"Sending chunk | length: {chunk_len}")
-                    print(f"Chunk:\n{chunk}\n")
+                    # print(f"Chunk:\n{chunk}\n")
                     ser.write(chunk)
                     # time.sleep(0.01)
 
@@ -151,14 +146,3 @@ class VmsCamera:
         img = self.snap_photo(savepath)
         if img:
             self.transfer_file(file = img, chunk_size = chunk_size)
-
-    def test_uart_transmission(self, test_length = 15):
-        """ UART data transmission used for tests """
-        ser = self.ser
-        if ser:
-            i = 0
-            while i < test_length:
-                ser.write(b"dummy data")
-                time.sleep(1)
-
-

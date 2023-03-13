@@ -1,14 +1,12 @@
-import pico_logger as logger
 from machine import UART, Pin
+import default_config as default
+import pico_logger as logger
 import _secret as s
 import wifi as _wifi
 import socket
 import time
 
-class VmsClient:
-    DEFAULT_TIMEOUT = 15
-    UART_ID = 0
-    DEFAULT_BAUDRATE = 115200
+class VMSClient:
     ONBOARD_LED = Pin("LED", Pin.OUT)
     tx_pin = Pin(0)
     rx_pin = Pin(1)
@@ -17,13 +15,12 @@ class VmsClient:
     port = s.SOCK_PORT
     ssid = s.WIFI_SSID
     password = s.WIFI_PASSWORD
-    timeout = DEFAULT_TIMEOUT
-    transmit_delay = 0.05
     wifi = None
     sock = None
     uart = None
-    uart_id = UART_ID
-    baudrate = DEFAULT_BAUDRATE
+    uart_id = default.UART_ID
+    baudrate = default.BAUDRATE
+    timeout = default.TIMEOUT
 
     def __init__(self, host=None, port=None, ssid=None, password=None,
                        timeout=None, uart_id=None, baudrate=None):
@@ -36,23 +33,28 @@ class VmsClient:
             self.ssid = ssid 
         if password is not None:
             self.password = password
+        if timeout is not None:
+            self.timeout = timeout
 
         self.ONBOARD_LED.value(1)
-        time.sleep(2)
+        time.sleep(1.5)
 
         # Setup wifi connection
         self.wifi = _wifi.Wifi()
         self.wifi.connect(self.ssid, self.password)
+
         # Setup uart communication
         self.uart = self.init_uart(uart_id, baudrate)
+
         # Setup socket and connect to VMSServer
         if host and port:
-            self.connect(host=host, port=port)
+            self.connect(host=self.host, port=self.port, timeout=self.timeout)
 
-    def _create_socket_connection(self, addr, port, timeout=None):
+    def _create_socket_connection(self, addr, port, timeout):
         # logger.info("Creating new socket connection")
         try:
             sock = socket.socket()
+            sock.settimeout(timeout)
             sock_addr = socket.getaddrinfo(addr, port)[0][-1]
             sock.connect(sock_addr)
             return sock
@@ -63,13 +65,7 @@ class VmsClient:
         if self.wifi is not None:
             self.wifi.connect(ssid, password)
 
-    def connect(self, host=None, port=None, timeout=None):
-        if host:
-            self.host = host
-        if port:
-            self.port = port
-        if timeout is None:
-            timeout = self.timeout
+    def connect(self, host, port, timeout):
         self.sock = self._create_socket_connection(host, port, timeout)
 
     def init_uart(self, uart_id=None, baudrate=None):
@@ -100,12 +96,23 @@ class VmsClient:
     def recieve_and_send_uart_data(self, chunk_size=1024):
         """ Recieves data on the UART and sends it directly to the server """
         if self.uart and self.sock:
-            # logger.info("Recieving data")
-            while self.uart.any():
+            # data_size = int.from_bytes(self.uart.read(4))
+            data_size = self.uart.read(4) # is in bytes already
+            # print("Data size: ", data_size)
+            chunk_size_bytes = chunk_size.to_bytes(4, 'big')
+            self.sock.sendall(chunk_size_bytes)
+            self.sock.sendall(data_size)
+
+            # FIXME: Returns none
+            while True:
                 data = self.uart.read(chunk_size)
-                # print(f"Recieved: {data}", end="")
+                print(data)
+                # print(f"Recieved: {data}")
                 self.sock.sendall(data)
-                # print("... sent")
+
+                data_len = len(data)
+                if data_len < chunk_size:
+                    break
 
     def send_file(self, filepath: str, chunk_size=1024):
         """
@@ -143,17 +150,30 @@ class VmsClient:
             for i in range(0, data_length, chunk_size):
                 self.sock.sendall(data[i : i+chunk_size])
     
+    def send_allocated_file(self, chunk_size=1024):
+        """ 
+        Send a file using allocated memory instead of sending the file in a stream-like manner. 
+        """
+        self.ONBOARD_LED.value(1)
+        uart_data = self.recieve_uart_data(chunk_size) 
+        self.send_file_bytes(uart_data)
+
+    def send_file_stream(self, chunk_size=1024):
+        """
+        Send a file using a continous stream of data
+        """
+        self.ONBOARD_LED.value(1)
+        uart_data = self.recieve_uart_data(chunk_size) 
+        self.send_file_bytes(uart_data)
+
     def on_update(self, chunk_size=1024):
         """
         On update function, to run every cycle
         Takes care of all that the pico has to do, polling, transmission etc
         """
+        self.ONBOARD_LED.value(0)
         if self.sock and self.uart:
-            self.ONBOARD_LED.value(0)
             if self.uart.any():
-                # Read uart
-                self.ONBOARD_LED.value(1)
-                uart_data = self.recieve_uart_data(chunk_size) 
-                # Transmit this file in bytes to the server
-                self.send_file_bytes(uart_data)
-
+                # self.send_allocated_file(chunk_size=chunk_size)
+                # FIXME
+                self.recieve_and_send_uart_data(chunk_size=chunk_size) 

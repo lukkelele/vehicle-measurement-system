@@ -1,6 +1,3 @@
-
-# TODO: Fix custom color formatting, same used as in logger
-
 class PicoLogger:
 
     def info(self, message):

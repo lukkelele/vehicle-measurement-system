@@ -1,4 +1,7 @@
-import VmsCamera
+import sys; import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import VMSCamera
 
 save_dir = './img/'
 baudrate = 57600
@@ -17,7 +20,7 @@ resolution = lower_res
 print("Starting VMSCamera test\n")
 print("Setting up the camera...")
 
-cam = VmsCamera.VmsCamera(resolution = resolution,
+cam = VMSCamera.VMSCamera(resolution = resolution,
                           port = port,
                           baudrate = baudrate,
                           timeout = timeout)
