@@ -1,9 +1,15 @@
-import default_config as default
 from logger import log
 from os import stat
 import picamera
 import serial
 import time
+
+UART_ID = 0
+BAUDRATE = 115200
+CHUNKSIZE = 4096
+TIMEOUT = 10
+PI_PORT = "/dev/ttyAMA0"
+SAVE_DIR = "./img/"
 
 LOW_RESOLUTION = (160, 120)
 DEFAULT_RESOLUTION = (320, 240)
@@ -14,10 +20,10 @@ class Error(Exception):
 
 class VMSCamera:
 
-    img_save_dir = default.SAVE_DIR
-    port = default.PI_PORT
-    baudrate = default.BAUDRATE
-    timeout = default.TIMEOUT
+    img_save_dir = "./img/"
+    port = PI_PORT
+    baudrate = BAUDRATE
+    timeout = TIMEOUT
     resolution = DEFAULT_RESOLUTION
 
     def __init__(self, resolution=None, port=None, baudrate=None, timeout=None, img_save_dir=None):
@@ -71,23 +77,23 @@ class VMSCamera:
     def _display_settings(self):
         """ Display the settings for the camera """
         print(f"""-- Camera settings --
-        Resolution: {self.resolution}
-        Port: {self.port}
-        Baudrate: {self.baudrate}
-        Timeout: {self.timeout}
+    Resolution: {self.resolution}
+    Port: {self.port}
+    Baudrate: {self.baudrate}
+    Timeout: {self.timeout}
         """)
 
-    def transfer_file(self, file, chunk_size=1024):
+    def transfer_file(self, file, chunksize=1024):
         """
         Transfer file
 
         - file: the file to be transmitted
-        - chunk_size: the size of the chunk to be transmitted each transmission
+        - chunksize: the size of the chunk to be transmitted each transmission
         """
         ser = self.ser
         if ser:
             with open(file, 'rb') as tfile:
-                print(f"Starting transfer: {file}, chunk size: {chunk_size}")
+                print(f"Starting transfer: {file}, chunk size: {chunksize}")
                 transfer_begin = time.perf_counter()
 
                 # TODO: Fix this for file size syncing
@@ -97,7 +103,7 @@ class VMSCamera:
                 ser.write(filesize_b)
 
                 while True:
-                    chunk = tfile.read(chunk_size)
+                    chunk = tfile.read(chunksize)
                     chunk_len = len(chunk)
                     if not chunk:
                         print("No chunks left, sending transfer complete...")
@@ -138,11 +144,13 @@ class VMSCamera:
             return savepath
         return None
 
-    def snap_and_send_photo(self, chunk_size, savepath = None):
+    def snap_and_send_photo(self, chunksize = None, savepath = None):
         """
         Take a photo and send it if everything goes well
         If the savepath is 'None' the default path will be set inside of 'snap_photo'
         """
+        if chunksize is None:
+            chunksize = CHUNKSIZE
         img = self.snap_photo(savepath)
         if img:
-            self.transfer_file(file = img, chunk_size = chunk_size)
+            self.transfer_file(file = img, chunksize = chunksize)

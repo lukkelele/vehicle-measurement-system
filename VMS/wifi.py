@@ -1,15 +1,12 @@
-# import _secret as secret
-from logger import log
 from time import sleep
-import binascii
 import network
-
+import binascii
 
 class Wifi:
-    station = None
-    ssid = None 
-    password = None 
-    timeout = None 
+    
+    ssid = None
+    password = None
+    timeout = 10
 
     def __init__(self, ssid=None, password=None, timeout=None):
         if ssid is not None:
@@ -19,17 +16,11 @@ class Wifi:
         if timeout is None:
             timeout = self.timeout
 
-    def connect(self, ssid, password, timeout = 15):
-        """ Connect to wifi
-
-        - ssid: network name
-        - password: passphrase of the network
-        - timeout: timeout in seconds before canceling connect attempt
-        """
+    def connect(self, ssid, passwd, timeout = 15):
         print('Connecting to WiFi: %s ' % ssid, end='')
         station = network.WLAN(network.STA_IF)
         station.active(True)
-        station.connect(ssid, password)
+        station.connect(ssid, passwd)
         is_timeout = False
         i = 0
 
@@ -44,10 +35,10 @@ class Wifi:
         print()
         if not is_timeout:
             return station
+        
         return None
        
     def scan(self):
-        """Scan nearby area for networks"""
         if (self.station is not None):
             print('Starting scan...')
             try:
@@ -67,5 +58,6 @@ class Wifi:
         else:
             print('Scanning could not start!\nMake sure the connection has been established')
 
-    def isConnected(self):
-        return self.station != None 
+    def isConnected(self, station):
+        return station != None 
+
