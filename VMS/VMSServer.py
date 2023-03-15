@@ -1,24 +1,25 @@
-import _secret as secret
-import VMSlib
+import _secret as s
+from VMSlib import *
 import logger
 import socket
 import time
 
 
 class VMSServer:
-    IMAGE_SAVE_DIR = "./img/recieved/"
+    IMAGE_SAVE_DIR = "./img/"
 
-    ssid = secret.WIFI_SSID
-    password = secret.WIFI_PASSWORD
-    host = secret.HOST_ADDR
-    port = secret.SOCK_PORT
-    log = logger.Logger("Server")
+    ssid = s.WIFI_SSID
+    password = s.WIFI_PASSWORD
+    host = s.HOST_ADDR
+    port = s.SOCK_PORT
+    log = logger.Logger("VMSServer")
 
     sock = None
     timeout = 300
     byteorder = "big"
     save_errors_threshold = 10
     save_path = IMAGE_SAVE_DIR
+    chunksize = 4096
 
     def __init__(self, host=None, port=None, baudrate=None, chunksize=None,
                  timeout=None, byteorder=None):
@@ -42,13 +43,20 @@ class VMSServer:
         if byteorder is not None: self.byteorder = byteorder
 
         # If a host and port was passed in the constructor, try to connect
-        if host and port: 
-            self.connect(host=self.host, port=self.port, timeout=self.timeout)
-        else: 
+        if host and port:
+            self.sock, self.conn, self.addr = self.start_connection(host=self.host, 
+                                                                    port=self.port, 
+                                                                    timeout=self.timeout)
+        else:
             self.log.warn(f"No host or port was provided, default settings set\nhost: {self.host}\nport: {self.port}")
 
+        # Open up a new port for receiving log messages from the client
+        # FIXME
+        # self.log.info(f"Setting up socket used for logging from client on {self.host}:{s.CLIENT_LOG_PORT}")
+        # self.logsock, self.logconn, self.logaddr = self.start_connection(host=self.host, port=s.CLIENT_LOG_PORT, timeout=30)
+        # self.log.info("Logging socket setup success!")
 
-    def _create_socket(self, host, port, timeout):
+    def _create_new_socket(self, host, port, timeout):
         """
         Create socket for client connection.
         Sets socket options for address reuse and binds to the host and port.
@@ -60,26 +68,35 @@ class VMSServer:
             sock.bind((host, port))
             return sock
         except:
-            raise VMSlib.SocketConnectionError(f"Could not create socket using: {host}:{port}, timeout: {timeout}")
+            raise SocketConnectionError(f"Could not create socket using: {host}:{port}, timeout: {timeout}")
 
-    def _listen(self):
+    def _listen(self, sock=None, port=None):
         try:
-            if self.sock:
-                self.log.info(f"Listening on {self.port}...")
-                self.sock.listen()
-                conn, addr = self.sock.accept()
+            if sock:
+                self.log.info(f"Listening on {port}...")
+                sock.listen()
+                conn, addr = sock.accept()
                 self.log.info(f"Connection established to: {addr}")
                 return conn, addr
         except:
-            raise VMSlib.SocketPortError(f"Could not start listening on {self.host}:{self.port}")
+            raise SocketPortError(f"Could not start listening on {self.host}:{port}")
+
+    def start_connection(self, host, port, timeout=20):
+        """
+        Setup a new socket connection
+        If errors occur they will be handled inside respective function
+        """
+        sock = self._create_new_socket(host, port, timeout)
+        conn, addr = self._listen(sock, port)
+        return sock, conn, addr
 
     def connect(self, host, port, timeout):
         """
         Connect to the VMSClient and set member variables to be returned values.
         Also resets the 'save_errors' variable.
         """
-        self.sock = self._create_socket(host, port, timeout)
-        self.conn, self.addr = self._listen()
+        self.sock = self._create_new_socket(host, port, timeout)
+        self.conn, self.addr = self._listen(sock=self.sock, port=port)
         self.save_errors = 0
 
     def _shutdown(self):
@@ -102,7 +119,7 @@ class VMSServer:
                 self.log.info(f"Saved: {file_loc}")
         except:
             if (self.save_errors >= self.save_errors_threshold):
-                raise VMSlib.SaveError(f"Could not save file at {self.save_path} | File size: {len(filedata) / 1024.0} kB")
+                raise SaveError(f"Could not save file at {self.save_path} | File size: {len(filedata) / 1024.0} kB")
             else:
                 self.save_errors += 1
                 self.log.error(f"Could not save file to {self.save_path}, total save errors: {self.save_errors}")
@@ -120,7 +137,8 @@ class VMSServer:
         Handles incoming data transmissions and other events that may occur.
         """
         if self.sock and self.conn:
-            chunksize, filesize = self._get_chunk_and_file_size()
+            filesize = self._get_filesize()
+            chunksize = self.chunksize
             # If chunk size and file size are acquired then start reading data continously
             self.log.info(f"Recieved chunksize: {chunksize}  |  filesize: {filesize}")
             if chunksize != None and filesize != None:
@@ -131,5 +149,5 @@ class VMSServer:
                         data += recv_data
 
                     # self.log.info(f"Data size: {len(data)}")
-                    # When all data is recieved, save the file
+                    # When all data is received, save the file
                     self._save_file(data)

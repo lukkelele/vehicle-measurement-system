@@ -1,11 +1,11 @@
 from machine import UART, Pin
+from VMSlib import *
 import pico_logger as log
 import wifi as _wifi
 import _secret as s
-import VMSlib
 import socket
 import time
-
+import _thread
 
 class VMSClient:
     UART_ID = 0
@@ -21,7 +21,8 @@ class VMSClient:
     ssid = s.WIFI_SSID
     password = s.WIFI_PASSWORD
     wifi = None
-    sock = None
+    sock = None     # Data transmission socket
+    logsock = None  # Logging socket
     uart = None
     uart_id = UART_ID
     baudrate = BAUDRATE
@@ -39,7 +40,7 @@ class VMSClient:
         if chunksize is not None: self.chunksize = chunksize
         if byteorder is not None: self.byteorder = byteorder
 
-        self.toggle_onboard_led()
+        self.ONBOARD_LED.value(1)
         time.sleep(1.5)
 
         # Setup wifi connection
@@ -50,31 +51,34 @@ class VMSClient:
         self.uart = self.init_uart(uart_id, baudrate)
 
         # Setup socket and connect to VMSServer
-        if host and port:
-            self.connect(host=self.host, port=self.port, timeout=self.timeout)
+        if host and port: 
+            self.sock = self.create_socket_connection(host=self.host, port=self.port, timeout=self.timeout)
 
-    def _create_socket_connection(self, host, port, timeout):
+        # Setup client log socket
+        try:
+            self.logsock = self.create_socket_connection(host=self.host, port=s.CLIENT_LOG_PORT, timeout=self.timeout)
+        except (SocketConnectionError):
+            log.error("Logging socket could not be created")
+
+
+    def create_socket_connection(self, host, port, timeout):
         try:
             sock = socket.socket()
             # sock.settimeout(timeout)
             sock_addr = socket.getaddrinfo(host, port)[0][-1]
+            print("Sock addr: ", sock_addr)
             sock.connect(sock_addr)
             return sock
         except:
-            raise VMSlib.SocketConnectionError(f"Could not create socket using: {host}:{port}, timeout: {timeout}")
+            raise SocketConnectionError(f"Could not create socket using: {host}:{port}, timeout: {timeout}")
+
 
     def connect_to_wifi(self, ssid, password):
         if self.wifi is not None:
             self.wifi.connect(ssid, password)
         else:
-            VMSlib.ConnectionError(f"Wifi is NOT connected, current target: {ssid}")
+            ConnectionError(f"Wifi is NOT connected, current target: {ssid}")
 
-    def toggle_onboard_led(self):
-        """ Toggle the onboard LED """
-        self.ONBOARD_LED.toggle()
-
-    def connect(self, host, port, timeout):
-        self.sock = self._create_socket_connection(host, port, timeout)
 
     def init_uart(self, uart_id=None, baudrate=None):
         if uart_id is not None: self.uart_id = uart_id
@@ -83,6 +87,7 @@ class VMSClient:
         if not uart_id and not baudrate:
             log.warn("No UART id or baudrate was given, using default settings")
         return UART(self.uart_id, self.baudrate, parity=None, stop=1, bits=8, tx=self.TX_PIN, rx=self.RX_PIN)
+
 
     def recieve_uart_data(self):
         """ Saves all data to the onboard memory and returns the file in bytes """
@@ -134,5 +139,6 @@ class VMSClient:
         if self.sock and self.uart:
             if self.uart.any():
                 self.send_allocated_file()
+
 
 
