@@ -15,7 +15,7 @@ def formatter_message(message, use_color = True):
     return message
 
 COLORS = {
-    'WARN': YELLOW,
+    'WARNING': YELLOW,
     'INFO': WHITE,
     'DEBUG': BLUE,
     'CRITICAL': RED,
@@ -24,7 +24,7 @@ COLORS = {
 
 class ColoredFormatter(logging.Formatter):
     def __init__(self, msg, use_color = True):
-        logging.Formatter.__init__(self, msg)
+        logging.Formatter.__init__(self, msg, datefmt="%H:%M:%S")
         self.use_color = use_color
 
     def format(self, record):
@@ -33,9 +33,10 @@ class ColoredFormatter(logging.Formatter):
             levelname_color = COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ
             record.levelname = levelname_color
         return logging.Formatter.format(self, record)
+        # return formatter.format(self, record)
 
 class Logger(logging.Logger):
-    FORMAT = "[$BOLD%(name)s$RESET][%(levelname)s] (%(lineno)d): %(message)s"
+    FORMAT = "%(asctime)s [$BOLD%(name)s$RESET] %(levelname)s : %(message)s"
     COLOR_FORMAT = formatter_message(FORMAT, True)
     def __init__(self, name):
         logging.Logger.__init__(self, name, logging.INFO)

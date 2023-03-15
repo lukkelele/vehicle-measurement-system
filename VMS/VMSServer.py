@@ -1,22 +1,13 @@
 import _secret as secret
+import VMSlib
 import logger
 import socket
 import time
 
 
-class Error(Exception):
-    pass
-
-class SaveError(Error):
-    """ Save error when writing data """
-    pass
-
-class ConnectionError(Error):
-    """ Connection error """
-    pass
-
-
 class VMSServer:
+    IMAGE_SAVE_DIR = "./img/recieved/"
+
     ssid = secret.WIFI_SSID
     password = secret.WIFI_PASSWORD
     host = secret.HOST_ADDR
@@ -25,10 +16,12 @@ class VMSServer:
 
     sock = None
     timeout = 300
+    byteorder = "big"
     save_errors_threshold = 10
-    save_path = './recv_img'
+    save_path = IMAGE_SAVE_DIR
 
-    def __init__(self, host=None, port=None, baudrate=None, chunk_size=None, timeout=None):
+    def __init__(self, host=None, port=None, baudrate=None, chunksize=None,
+                 timeout=None, byteorder=None):
         """
         Start the VMSServer.
 
@@ -39,21 +32,19 @@ class VMSServer:
         newly created VMSServer automatically set up the socket connection.
         To start a connection, the 'connect' function has to be called manually.
         """
-        self.log.info("Starting new server instance")
-        if host is not None:
-            self.host = host
-        if port is not None:
-            self.port = port
-        if baudrate is not None:
-            self.baudrate = baudrate
-        if chunk_size is not None:
-            self.chunk_size = chunk_size
-        if timeout is not None:
-            self.timeout = timeout
+        self.log.info("Starting server...")
+        # Setup member values
+        if host is not None: self.host = host
+        if port is not None: self.port = port
+        if timeout is not None: self.timeout = timeout
+        if baudrate is not None: self.baudrate = baudrate
+        if chunksize is not None: self.chunksize = chunksize
+        if byteorder is not None: self.byteorder = byteorder
 
-        if host and port:
+        # If a host and port was passed in the constructor, try to connect
+        if host and port: 
             self.connect(host=self.host, port=self.port, timeout=self.timeout)
-        else:
+        else: 
             self.log.warn(f"No host or port was provided, default settings set\nhost: {self.host}\nport: {self.port}")
 
 
@@ -69,8 +60,7 @@ class VMSServer:
             sock.bind((host, port))
             return sock
         except:
-            self.log.error("Connection error")
-            raise ConnectionError(f"Could not create socket using: {host}:{port}, timeout: {timeout}")
+            raise VMSlib.SocketConnectionError(f"Could not create socket using: {host}:{port}, timeout: {timeout}")
 
     def _listen(self):
         try:
@@ -81,7 +71,7 @@ class VMSServer:
                 self.log.info(f"Connection established to: {addr}")
                 return conn, addr
         except:
-            raise ConnectionError(f"Could not start listening on {self.host}:{self.port}")
+            raise VMSlib.SocketPortError(f"Could not start listening on {self.host}:{self.port}")
 
     def connect(self, host, port, timeout):
         """
@@ -96,10 +86,6 @@ class VMSServer:
         """
         Close connections and shut down the server
         """
-
-    def transmit_data(self, data):
-        if self.sock:
-            self.sock.send(data)
 
     def _save_file(self, filedata):
         """
@@ -116,24 +102,17 @@ class VMSServer:
                 self.log.info(f"Saved: {file_loc}")
         except:
             if (self.save_errors >= self.save_errors_threshold):
-                raise SaveError(f"Could not save file at {self.save_path} | File size: {len(filedata) / 1024.0} kB")
+                raise VMSlib.SaveError(f"Could not save file at {self.save_path} | File size: {len(filedata) / 1024.0} kB")
             else:
                 self.save_errors += 1
                 self.log.error(f"Could not save file to {self.save_path}, total save errors: {self.save_errors}")
 
-    def _get_size(self, byteorder="big"):
-        """
-        Get chunk and file sizes at the beginning of data transmissions.
-        Reads first 4 bytes and converts them to an actual number.
-
-        - byteorder: big or little, endian order
-        - returns: the number of the 4 read bytes if connection is up, else None
-        """
+    def _get_filesize(self, byteorder="big"):
+        """ Get filesize at the start of a data transmission """
         if self.conn:
-            size_b = self.conn.recv(4)
-            size = int.from_bytes(size_b, byteorder=byteorder)
-            return size
-        return None
+            filesize_b = self.conn.recv(4)
+            filesize = int.from_bytes(filesize_b, byteorder)
+            return filesize
 
     def on_update(self):
         """
@@ -141,15 +120,14 @@ class VMSServer:
         Handles incoming data transmissions and other events that may occur.
         """
         if self.sock and self.conn:
-            chunk_size = self._get_size()
-            filesize = self._get_size()
+            chunksize, filesize = self._get_chunk_and_file_size()
             # If chunk size and file size are acquired then start reading data continously
-            self.log.info(f"recv -> chunksize: {chunk_size}  |  filesize: {filesize}")
-            if chunk_size != None and filesize != None:
+            self.log.info(f"Recieved chunksize: {chunksize}  |  filesize: {filesize}")
+            if chunksize != None and filesize != None:
                     data = b""
-                    self.log.info(f"Recieving file size: {filesize}")
+                    self.log.info(f"Recieving file size: {filesize} and chunksize {chunksize}")
                     while len(data) < filesize:
-                        recv_data = self.conn.recv(chunk_size)
+                        recv_data = self.conn.recv(chunksize)
                         data += recv_data
 
                     # self.log.info(f"Data size: {len(data)}")

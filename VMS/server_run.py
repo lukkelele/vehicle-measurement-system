@@ -3,13 +3,13 @@ import _secret as s
 
 HOST = s.HOST_ADDR
 PORT = s.SOCK_PORT
-BAUDRATE = 57600
-CHUNKSIZE = 2048
+BAUDRATE = 115200
+CHUNKSIZE = 4096
 
 vmsServer = VMSServer.VMSServer(host = HOST,
                                 port = PORT,
                                 baudrate = BAUDRATE,
-                                chunk_size = CHUNKSIZE
+                                chunksize = CHUNKSIZE
                                 )
 
 while True:

@@ -1,6 +1,7 @@
 from time import sleep
-import network
 import binascii
+import network
+import VMSlib
 
 class Wifi:
     
@@ -17,7 +18,7 @@ class Wifi:
             timeout = self.timeout
 
     def connect(self, ssid, passwd, timeout = 15):
-        print('Connecting to WiFi: %s ' % ssid, end='')
+        print("Connecting to WiFi: %s " % ssid, end="")
         station = network.WLAN(network.STA_IF)
         station.active(True)
         station.connect(ssid, passwd)
@@ -25,38 +26,39 @@ class Wifi:
         i = 0
 
         while not station.isconnected():
-            print('.', end='')
+            print(".", end="")
             i += 1
             sleep(1)
             if i > timeout:
-                print(' connection couldn\'t be established')
+                print(" connection couldn't be established")
                 station.active(False)
                 is_timeout = True
+                raise VMSlib.ConnectionTimeoutError(f"Connection timed out trying to connect to {ssid}")
         print()
         if not is_timeout:
             return station
         
-        return None
+        raise VMSlib.ConnectionError(f"Wifi connection failed. Tried to connect to {ssid}")
        
     def scan(self):
         if (self.station is not None):
-            print('Starting scan...')
+            print("Starting scan...")
             try:
                 scan = self.station.scan()
                 sleep(1.5)
                 for n in scan:
-                    network_name = n[0].decode('UTF-8')
-                    network_address = binascii.hexlify(n[1]).decode('UTF-8')
+                    network_name = n[0].decode("UTF-8")
+                    network_address = binascii.hexlify(n[1]).decode("UTF-8")
                     network_channel = n[2]
-                    print('''Network
-                          name: %s
-                          address: %s
-                          channel: %s
-                          ''' % (network_name, network_address, network_channel))
+                    print("""Network
+                  name: %s
+                  address: %s
+                  channel: %s
+                          """% (network_name, network_address, network_channel))
             except:
-                print('Error scanning networks')
+                print("Wifi scan failed...")
         else:
-            print('Scanning could not start!\nMake sure the connection has been established')
+            print("Scanning could not start!\nMake sure the connection has been established")
 
     def isConnected(self, station):
         return station != None 
