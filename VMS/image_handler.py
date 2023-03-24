@@ -6,13 +6,14 @@ import numpy as np
 import math
 
 class rgb_color(Enum):
-    # rgb values are flipped?
+    # Actually bgr 
     blue = (255, 0, 0)
     red = (0, 0, 255)
     green = (0, 255, 0)
 
 LOCAL_DIR_IMAGES = "../img"
-car_image = LOCAL_DIR_IMAGES + '/red_car.jpg'
+car_image = LOCAL_DIR_IMAGES + '/me.jpg'
+# car_image = LOCAL_DIR_IMAGES + '/red_car.jpg'
 # car_image = LOCAL_DIR_IMAGES + '/drive-by.jpg'
 # car_image = LOCAL_DIR_IMAGES + '/crime-scene.jpg'
 
@@ -128,7 +129,7 @@ def reduce_noise(image):
     return image
 
 
-def detect_edges(image, a = 30, b = 200):
+def detect_edges(image, a = 70, b = 200):
     """ Detect edges in image """
     image = cv.Canny(image, a, b)
     return image

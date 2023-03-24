@@ -36,8 +36,6 @@ class VMSCamera:
         if baudrate is not None: self.baudrate = baudrate
         if timeout is not None: self.timeout = timeout
         if img_save_dir is not None: self.img_save_dir = img_save_dir
-        if serial_port is None: log.warn(f"Port is set to default value: {self.serial_port}")
-        if baudrate is None: log.warn(f"Baudrate is set to default value: {self.baudrate}")
 
         self.ser = self._init_serial()
         self._init_camera()
@@ -92,7 +90,6 @@ class VMSCamera:
                 ser.write(filesize_b)
 
                 self.log.info("File transfer started...")
-                # TODO: Add 'transfer' - bar for progress
                 while True:
                     # Read data with a size of 'chunksize'
                     chunk = tfile.read(chunksize)
@@ -105,7 +102,6 @@ class VMSCamera:
 
                     # Send the data over the serial connection
                     # self.log.info(f"Sending chunk | length: {chunk_len}")
-                    self.log
                     ser.write(chunk)
 
                 # Output a log statement with file transfer information
@@ -158,3 +154,12 @@ class VMSCamera:
         img = self.snap_photo(savepath)
         if img:
             self.transfer_file(file = img, chunksize = chunksize)
+
+    def on_update(self):
+        """
+        Camera on update function.
+        Continously sends images that are taken with previously set configuration
+        parameters from the VMSCamera initialization.
+        """
+        if self.ser:
+            self.snap_and_send_photo(self, self.chunksize, self.img_save_dir)

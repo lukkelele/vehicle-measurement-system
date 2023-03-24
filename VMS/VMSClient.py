@@ -43,9 +43,9 @@ class VMSClient:
         self.ONBOARD_LED.value(1)
         time.sleep(1.5)
 
-        # Setup wifi connection
-        self.wifi = _wifi.Wifi()
-        self.wifi.connect(self.ssid, self.password)
+        # Setup wifi connection on separate thread
+        print('Starting new thread with wifi')
+        _thread.start_new_thread(self.connect_to_wifi, (self.ssid, self.password))
 
         # Setup uart communication
         self.uart = self.init_uart(uart_id, baudrate)
@@ -53,12 +53,6 @@ class VMSClient:
         # Setup socket and connect to VMSServer
         if host and port: 
             self.sock = self.create_socket_connection(host=self.host, port=self.port, timeout=self.timeout)
-
-        # Setup client log socket
-        try:
-            self.logsock = self.create_socket_connection(host=self.host, port=s.CLIENT_LOG_PORT, timeout=self.timeout)
-        except (SocketConnectionError):
-            log.error("Logging socket could not be created")
 
 
     def create_socket_connection(self, host, port, timeout):

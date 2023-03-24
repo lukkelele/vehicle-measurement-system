@@ -47,14 +47,8 @@ class VMSServer:
             self.sock, self.conn, self.addr = self.start_connection(host=self.host, 
                                                                     port=self.port, 
                                                                     timeout=self.timeout)
-        else:
+        else: 
             self.log.warn(f"No host or port was provided, default settings set\nhost: {self.host}\nport: {self.port}")
-
-        # Open up a new port for receiving log messages from the client
-        # FIXME
-        # self.log.info(f"Setting up socket used for logging from client on {self.host}:{s.CLIENT_LOG_PORT}")
-        # self.logsock, self.logconn, self.logaddr = self.start_connection(host=self.host, port=s.CLIENT_LOG_PORT, timeout=30)
-        # self.log.info("Logging socket setup success!")
 
     def _create_new_socket(self, host, port, timeout):
         """
